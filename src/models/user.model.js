@@ -46,8 +46,8 @@ const userSchema = new Schema(
       default: '',
     },
     socialLinks: {
-      type: [],
-      default: [],
+      type: String,
+      default: '',
     },
     refreshToken: {
       type: String,

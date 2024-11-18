@@ -3,6 +3,7 @@ import ApiError from '../utils/ApiError.util.js';
 import { User } from '../models/user.model.js';
 import uploadToCloudinary from '../utils/UploadToCloudinary.util.js';
 import ApiResponse from '../utils/ApiResponse.util.js';
+import { deleteFromCloudinary } from '../utils/DeleteFromCloudinary.util.js';
 
 const generateAccessTokenAndRefreshToken = async (userid) => {
   try {
@@ -128,4 +129,96 @@ const logout = asyncHandler(async (req, res) => {
     .clearCookie('accessToken')
     .json(new ApiResponse(200, {}, 'User logged out successfully'));
 });
-export { signup, login, logout };
+
+const getCurrentuser = asyncHandler(async (req, res) => {
+  const user = req.user;
+  if (!user) {
+    throw new ApiError(401, 'Unauthorized');
+  }
+  const currentUser = await User.findById(user._id).select(
+    '-password -refreshToken',
+  );
+
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(200, { user: currentUser }, 'User fetched successfully'),
+    );
+});
+
+const updateProfile = asyncHandler(async (req, res) => {
+  const user = req.user;
+
+  if (!user) {
+    throw new ApiError(401, 'Unauthorized');
+  }
+
+  const currentUser = await User.findById(user._id);
+
+  const { fullName, bio, username, dob, about, socialLinks } = req.body;
+
+  if (username) {
+    const isUsernameExist = await User.findOne({ username });
+    if (isUsernameExist) {
+      throw new ApiError(400, 'Username already exists');
+    }
+    currentUser.username = username;
+  }
+
+  if (bio && bio.trim() !== '') {
+    currentUser.bio = bio;
+  }
+
+  if (fullName && fullName.trim() !== '') {
+    currentUser.fullName = fullName;
+  }
+
+  let avatarLocalPath = '';
+  if (req?.files && Array.isArray(req?.files?.avatar)) {
+    avatarLocalPath = req?.files?.avatar[0]?.path;
+    const currentAvatar = currentUser.avatar;
+    if (currentAvatar) {
+      const publicId = currentAvatar.split('/').pop().split('.')[0];
+      const response = await deleteFromCloudinary(publicId);
+      response ? console.log('Avatar deleted successfully') : console.log('Avatar not deleted');
+    }
+    const avatar = await uploadToCloudinary(avatarLocalPath);
+    currentUser.avatar = avatar.url;
+  }
+
+  let coverImageLocalPath = '';
+  if (req?.files && Array.isArray(req?.files?.coverImage)) {
+    coverImageLocalPath = req?.files?.coverImage[0]?.path;
+    const currentCoverImage = currentUser.coverImage;
+    if (currentCoverImage) {
+      const publicId = currentCoverImage.split('/').pop().split('.')[0];
+      const response = await deleteFromCloudinary(publicId);
+      response && console.log('Cover image deleted successfully');
+      console.log('Cover image not deleted');
+    }
+    const coverImage = await uploadToCloudinary(coverImageLocalPath);
+    currentUser.coverImage = coverImage.url;
+  }
+
+  if (dob) {
+    currentUser.dob = dob;
+  }
+
+  if (about) {
+    currentUser.about = about;
+  }
+
+  if (socialLinks) {
+    currentUser.socialLinks = socialLinks;
+  }
+
+  await currentUser.save({ validateBeforeSave: false });
+
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(200, { user: currentUser }, 'User updated successfully'),
+    );
+});
+
+export { signup, login, logout, getCurrentuser, updateProfile };
