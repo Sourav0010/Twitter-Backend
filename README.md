@@ -1,171 +1,172 @@
-````markdown
 # Twitter Backend
 
-A robust backend application inspired by Twitter's core features, built using Node.js, Express.js, and MongoDB. This project implements key functionalities like user management, posting tweets, commenting, liking, and following/unfollowing users.
-
----
+A backend API service for a Twitter-like application, built with Node.js, Express, and MongoDB. This project supports essential features such as user management, tweets, comments, likes, and followers.
 
 ## Features
 
-- **User Management**
-
-  - User registration and login with secure authentication.
-  - User profiles with avatar, cover image, and bio.
-
-- **Tweets**
-
-  - Create, read, update, and delete tweets.
-  - Option to add images to tweets.
-
-- **Comments**
-
-  - Add comments to tweets.
-  - View all comments associated with a tweet.
-
-- **Likes**
-
-  - Like/unlike tweets or comments.
-
-- **Followers**
-  - Follow/unfollow other users.
-  - Retrieve follower and following lists.
+- **User Management**: User registration, login, profile updates, and secure authentication with refresh tokens.
+- **Tweet Management**: Allows users to post tweets with optional image uploads.
+- **Comments**: Users can add comments to tweets.
+- **Likes**: Users can like tweets or comments.
+- **Followers**: Users can follow or unfollow other users.
 
 ---
 
-## Data Models
+## Database Models
 
-### 1. **User Model**
+### **User Model**
 
-- **Fields**:
-  - `username`: `string`
-  - `password`: `string`
-  - `email`: `string`
-  - `fullname`: `string`
-  - `avatar`: `string`
-  - `coverimage`: `string`
-  - `refreshtoken`: `string`
-  - `about`: `string`
-  - `social_link`: `string`
-
-### 2. **Tweet Model**
-
-- **Fields**:
-  - `content`: `string`
-  - `user`: `ObjectId` (reference to `User`)
-  - `image`: `string`
-
-### 3. **Comment Model**
-
-- **Fields**:
-  - `content`: `string`
-  - `user`: `ObjectId` (reference to `User`)
-  - `tweet`: `ObjectId` (reference to `Tweet`)
-
-### 4. **Like Model**
-
-- **Fields**:
-  - `tweet`: `ObjectId` (reference to `Tweet`)
-  - `comment`: `ObjectId` (reference to `Comment`)
-  - `user`: `ObjectId` (reference to `User`)
-
-### 5. **Follower Model**
-
-- **Fields**:
-  - `follower`: `ObjectId` (reference to `User`)
-  - `following`: `ObjectId` (reference to `User`)
+| Field          | Type   | Description                   |
+| -------------- | ------ | ----------------------------- |
+| `username`     | String | Unique username               |
+| `password`     | String | Hashed password               |
+| `email`        | String | Unique email address          |
+| `fullname`     | String | Full name of the user         |
+| `avatar`       | String | URL of the profile picture    |
+| `coverimage`   | String | URL of the cover image        |
+| `refreshtoken` | String | Refresh token for sessions    |
+| `about`        | String | Bio or about section for user |
+| `social_link`  | String | User's external profile link  |
 
 ---
 
-## Tech Stack
+### **Tweet Model**
 
-- **Backend Framework**: Node.js, Express.js
-- **Database**: MongoDB
-- **Authentication**: JWT (JSON Web Tokens)
-- **ORM/ODM**: Mongoose
+| Field     | Type     | Description                                        |
+| --------- | -------- | -------------------------------------------------- |
+| `content` | String   | Text content of the tweet                          |
+| `user`    | ObjectId | Reference to the user who posted the tweet         |
+| `image`   | String   | URL of an optional image associated with the tweet |
+
+---
+
+### **Comment Model**
+
+| Field     | Type     | Description                         |
+| --------- | -------- | ----------------------------------- |
+| `content` | String   | Text content of the comment         |
+| `user`    | ObjectId | Reference to the user who commented |
+| `tweet`   | ObjectId | Reference to the related tweet      |
+
+---
+
+### **Like Model**
+
+| Field     | Type     | Description                     |
+| --------- | -------- | ------------------------------- |
+| `tweet`   | ObjectId | Reference to the liked tweet    |
+| `comment` | ObjectId | Reference to the liked comment  |
+| `user`    | ObjectId | Reference to the user who liked |
+
+---
+
+### **Follower Model**
+
+| Field       | Type     | Description                        |
+| ----------- | -------- | ---------------------------------- |
+| `follower`  | ObjectId | User ID of the follower            |
+| `following` | ObjectId | User ID of the user being followed |
 
 ---
 
 ## Installation
 
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/your-username/twitter-backend.git
-   cd twitter-backend
-   ```
-````
+### 1. Clone the repository:
 
-2. Install dependencies:
+```bash
+git clone https://github.com/Sourav0010/Twitter-Backend.git
+cd Twitter-Backend
+```
 
-   ```bash
-   npm install
-   ```
+### 2. Install dependencies:
 
-3. Set up environment variables:
-   Create a `.env` file in the root directory and add the following:
+```bash
+npm install
+```
 
-   ```
-   MONGO_URI=your_mongodb_connection_string
-   JWT_SECRET=your_jwt_secret
-   ```
+### 3. Configure environment variables:
 
-4. Run the development server:
-   ```bash
-   npm run dev
-   ```
+- Create a `.env` file based on the provided `.env.example` template.
+- Set your MongoDB URI and other required environment variables.
+
+### 4. Run the server:
+
+```bash
+npm run dev
+```
+
+---
+
+## Base URL
 
 ---
 
 ## API Endpoints
 
-### User Routes
+### **Users**
 
-- `POST /api/users/register` - Register a new user.
-- `POST /api/users/login` - User login.
-- `GET /api/users/:id` - Get user details.
+- `POST /api/v1/users/signup`: Register a new user.
+- `POST /api/v1/users/login`: Login an existing user.
+- `POST /api/v1/users/logout`: Logout user.
+- `POST /api/v1/users/refresh-token`: Generate a new access token.
+- `PATCH /api/v1/users/profile`: Update user profile.
 
-### Tweet Routes
+---
 
-- `POST /api/tweets` - Create a new tweet.
-- `GET /api/tweets` - Get all tweets.
-- `DELETE /api/tweets/:id` - Delete a tweet.
+### **Tweets**
 
-### Comment Routes
+- `POST /api/v1/tweets/`: Create a new tweet.
+- `GET /api/v1/tweets/`: Get all tweets.
+- `GET /api/v1/tweets/:tweetId`: Get a specific tweet.
+- `DELETE /api/v1/tweets/:tweetId`: Delete a tweet.
 
-- `POST /api/comments` - Add a comment.
-- `GET /api/comments/:tweetId` - Get all comments for a tweet.
+---
 
-### Like Routes
+### **Comments**
 
-- `POST /api/likes` - Like a tweet/comment.
-- `DELETE /api/likes/:id` - Unlike a tweet/comment.
+- `POST /api/v1/comments/:tweetId`: Add a comment to a tweet.
+- `GET /api/v1/comments/:tweetId`: Retrieve all comments for a tweet.
+- `DELETE /api/v1/comments/:commentId`: Delete a comment.
 
-### Follower Routes
+---
 
-- `POST /api/follow` - Follow a user.
-- `DELETE /api/unfollow/:id` - Unfollow a user.
+### **Likes**
+
+- `POST /api/v1/likes/toggle/tweet/:tweetId`: Like or unlike a tweet.
+- `POST /api/v1/likes/toggle/comment/:commentId`: Like or unlike a comment.
+
+---
+
+### **Followers**
+
+- `POST /api/v1/followers/follow/:userId`: Follow or unfollow a user.
+- `GET /api/v1/followers/:userId`: Retrieve the followers of a user.
+- `GET /api/v1/following/:userId`: Retrieve the users followed by a user.
+
+---
+
+## Technologies Used
+
+- **Backend**: Node.js, Express.js
+- **Database**: MongoDB (Mongoose)
+- **Authentication**: JWT
+- **Other**: Cloudinary (for media uploads)
 
 ---
 
 ## Contributing
 
-Contributions are welcome! Please fork the repository and submit a pull request for any feature additions or bug fixes.
+If you’d like to contribute to this project:
+
+1. Fork the repository.
+2. Create a feature branch (`git checkout -b feature-name`).
+3. Commit your changes (`git commit -m "Add feature"`).
+4. Push to the branch (`git push origin feature-name`).
+5. Open a pull request.
 
 ---
 
-## License
-
-This project is licensed under the [MIT License](LICENSE).
+**Thank you for checking out the Twitter Backend! Feel free to raise any issues or contribute to make this project better.**  
+~ _Sourav Mohanty_
 
 ---
-
-## Contact
-
-If you have any questions or suggestions, feel free to reach out.
-
-- **Email**: your-email@example.com
-- **GitHub**: [YourUsername](https://github.com/your-username)
-
-```
-
-Let me know if you'd like to make further changes!
-```
