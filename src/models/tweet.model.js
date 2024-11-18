@@ -12,8 +12,8 @@ const tweetSchema = new Schema(
       required: true,
     },
     images: {
-      type: Array,
-      default: [],
+      type: String,
+      default: '',
     },
   },
   { timestamps: true },

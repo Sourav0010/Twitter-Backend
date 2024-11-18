@@ -9,6 +9,9 @@ cloudinary.config({
 
 const uploadToCloudinary = async (fileLocalPath) => {
   try {
+    if (!fileLocalPath) {
+      return null;
+    }
     const data = await cloudinary.uploader.upload(fileLocalPath);
     if (data) {
       fs.unlinkSync(fileLocalPath);
