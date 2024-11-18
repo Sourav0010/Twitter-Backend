@@ -5,11 +5,12 @@ const likeSchema = new Schema(
     tweet: {
       type: Schema.Types.ObjectId,
       ref: 'Tweet',
-      required: true,
+      default: null,
     },
     comment: {
-      type: String,
-      required: true,
+      type: Schema.Types.ObjectId,
+      ref: 'Comment',
+      default: null,
     },
     user: {
       type: Schema.Types.ObjectId,
@@ -20,4 +21,4 @@ const likeSchema = new Schema(
   { timestamps: true },
 );
 
-const Like = model('Like', likeSchema);
+export const Like = model('Like', likeSchema);
