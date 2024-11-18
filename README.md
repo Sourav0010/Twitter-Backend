@@ -99,6 +99,10 @@ npm run dev
 
 ## Base URL
 
+```
+https://twitter-backend-6jlw.onrender.com
+```
+
 ---
 
 ## API Endpoints
